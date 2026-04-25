@@ -1,3 +1,4 @@
+import com.hwigle.budge.application.port.out.SaveTransactionPort;
 import com.hwigle.budge.application.service.TransactionService;
 import com.hwigle.budge.domain.Money;
 import com.hwigle.budge.domain.Transaction;
@@ -11,14 +12,16 @@ public class TransactionServiceTest {
     @Test
     void 장부_기록_테스트() {
         // 1. 준비(Given) : 테스트에 필요한 재료 준비
-        TransactionService service = new TransactionService();
+        // 가짜 저장소(Stub) 만들기
+        SaveTransactionPort fakePort = transaction -> System.out.println("가짜 저장소에 저장됨: " + transaction.getDescription());
+        TransactionService service = new TransactionService(fakePort);
 
         Transaction transaction = new Transaction(
-                TransactionType.EXPENDITURE, // 1. 타입
-                LocalDateTime.now(),         // 2. 시간
-                "야구장 치킨",                // 3. 내용 (이게 빠졌나 확인!)
-                new Money(25000L),           // 4. 돈 객체
-                "식비"                       // 5. 카테고리
+                TransactionType.EXPENDITURE,  // 1. 타입
+                LocalDateTime.now(),          // 2. 시간
+                "야구장 치킨",                 // 3. 내용
+                new Money(25000L),    // 4. 돈 객체
+                "식비"                        // 5. 카테고리
         );
 
         // 2. 실행(When) : 실제로 기록 기능 실행
