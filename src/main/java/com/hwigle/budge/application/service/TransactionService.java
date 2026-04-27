@@ -9,7 +9,7 @@ public class TransactionService implements RecordTransactionUseCase {
     // 난 저장소 구멍이 필요해라고 선언
     private final SaveTransactionPort saveTransactionPort;
 
-    // 2. 생성자로 주입받아 (나중에 스프링이 꽂아줄 거야)
+    // 생성자로 주입받아 (나중에 스프링이 꽂아줄 거야)
     public TransactionService(SaveTransactionPort saveTransactionPort) {
         this.saveTransactionPort = saveTransactionPort;
     }
