@@ -3,7 +3,9 @@ package com.hwigle.budge.application.service;
 import com.hwigle.budge.application.port.in.RecordTransactionUseCase;
 import com.hwigle.budge.application.port.out.SaveTransactionPort;
 import com.hwigle.budge.domain.Transaction;
+import org.springframework.stereotype.Service;
 
+@Service
 public class TransactionService implements RecordTransactionUseCase {
 
     // 난 저장소 구멍이 필요해라고 선언
