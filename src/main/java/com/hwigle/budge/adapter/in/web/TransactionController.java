@@ -1,5 +1,6 @@
 package com.hwigle.budge.adapter.in.web;
 
+import com.hwigle.budge.application.port.in.GetTransactionListUseCase;
 import com.hwigle.budge.application.port.in.RecordTransactionUseCase;
 import com.hwigle.budge.domain.Money;
 import com.hwigle.budge.domain.Transaction;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor // 아래에 있는 recordTransactionUseCase를 자동으로 연결
@@ -17,6 +19,7 @@ public class TransactionController {
 
     // '장부 기록하기' 인터페이스
     private final RecordTransactionUseCase recordTransactionUseCase;
+    private final GetTransactionListUseCase getTransactionListUseCase;
 
     @GetMapping("/record")
     public String recordTransaction(
@@ -38,5 +41,10 @@ public class TransactionController {
 
         // 3. 응답
         return "가계부 기록 성공! 내역 : " + desc + ", 금액 : " + amount + "원";
+    }
+
+    @GetMapping("/list")
+    public List<Transaction> getAllTransaction() {
+       return getTransactionListUseCase.getList() ;
     }
 }
