@@ -27,11 +27,12 @@ public class TransactionController {
     public String recordTransaction(
             @RequestParam String desc,
             @RequestParam Long amount,
-            @RequestParam String category
+            @RequestParam String category,
+            @RequestParam TransactionType type
     ) {
         // 1. 도메인 객체
         Transaction transaction = new Transaction(
-                TransactionType.EXPENDITURE, // "이건 돈 쓴 거야!" (지출로 고정)
+                type,
                 LocalDateTime.now(),         // "지금 바로 쓴 거야!" (현재 시간)
                 desc,                        // "어디에 썼냐면..." (설명)
                 new Money(amount),           // "얼마냐면..." (돈 객체로 변신!)
@@ -46,9 +47,16 @@ public class TransactionController {
     }
 
     @GetMapping("/list")
-    public List<Transaction> getAllTransaction() {
-       return getTransactionListUseCase.getList() ;
+    public List<Transaction> getAllTransaction(@RequestParam(required = false) String category) {
+        if(category != null && !category.isEmpty()) {
+            return getTransactionListUseCase.getListByCategory(category);
+        }
+
+        return getTransactionListUseCase.getList();
     }
+
+
+
 
     @GetMapping("/total")
     public String getTotal() {

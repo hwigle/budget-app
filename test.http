@@ -1,8 +1,2 @@
-### 1. 가계부 내역 기록하기
-GET http://localhost:8080/record?desc=치킨&amount=20000&category=식비
-
-### 2. 전체 내역 조회하기 (여기서 ID를 확인해!)
-GET http://localhost:8080/list
-
-### 3. 내역 삭제하기 (ID가 1번인 경우)
-DELETE http://localhost:8080/delete/1
+### 금액에 마이너스 넣기
+GET http://localhost:8080/record?type=EXPENDITURE&desc=도둑맞음&amount=-5000&category=기타

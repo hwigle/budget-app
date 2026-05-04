@@ -58,6 +58,13 @@ public class TransactionPersistenceAdapter implements
     }
 
     @Override
+    public List<Transaction> loadByCategory(String category) {
+        return repository.findByCategory(category).stream()
+                .map(this::mapToDomain)
+                .toList();
+    }
+
+    @Override
     public void deleteById(Long id) {
         repository.deleteById(id);
     }

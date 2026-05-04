@@ -7,4 +7,7 @@ import java.util.List;
 public interface LoadTransactionPort {
 
     List<Transaction> loadAll();
+
+    // 카테고리별 조회
+    List<Transaction> loadByCategory(String category);
 }

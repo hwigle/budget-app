@@ -7,4 +7,5 @@ import java.util.List;
 public interface GetTransactionListUseCase {
 
     List<Transaction> getList();
+    List<Transaction> getListByCategory(String category);
 }

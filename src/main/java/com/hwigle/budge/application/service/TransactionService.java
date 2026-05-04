@@ -7,6 +7,7 @@ import com.hwigle.budge.application.port.in.RecordTransactionUseCase;
 import com.hwigle.budge.application.port.out.DeleteTransactionPort;
 import com.hwigle.budge.application.port.out.LoadTransactionPort;
 import com.hwigle.budge.application.port.out.SaveTransactionPort;
+import com.hwigle.budge.domain.Money;
 import com.hwigle.budge.domain.Transaction;
 import com.hwigle.budge.domain.TransactionType;
 import lombok.RequiredArgsConstructor;
@@ -46,15 +47,22 @@ public class TransactionService implements
     }
 
     @Override
+    public List<Transaction> getListByCategory(String category) {
+        return loadTransactionPort.loadByCategory(category);
+    }
+
+    @Override
     public long getTotalExpenditure() {
         // 1. DB에서 모든 내역 가져오기
         List<Transaction> transactions = loadTransactionPort.loadAll();
 
         // 2. 지출만 골라서 금액 합치기
-        return transactions.stream()
-                .filter(t -> t.getType().equals(TransactionType.EXPENDITURE)) // 지출 필터
-                .mapToLong(t -> t.getMoney().getAmount())           // 금액으로 변환
-                .sum();                                                         // 합산
+        Money total = transactions.stream()
+                .filter(t -> t.getType().equals(TransactionType.EXPENDITURE)) // 1) 지출만 필터링
+                .map(Transaction::getMoney)                                  // 2) Transaction에서 Money 객체 추출 (Stream<Money>)
+                .reduce(Money.zero(), Money::plus);                           // 3) 0원부터 시작해서 Money의 add 메서드로 합산
+
+        return total.getAmount(); // 최종 숫자만 반환                                                       // 합산
     }
 
     @Override
