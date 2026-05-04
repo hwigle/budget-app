@@ -1,27 +1,32 @@
 package com.hwigle.budge.application.service;
 
+import com.hwigle.budge.application.port.in.DeleteTransactionUseCase;
 import com.hwigle.budge.application.port.in.GetTransactionListUseCase;
+import com.hwigle.budge.application.port.in.GetTransactionSummaryUseCase;
 import com.hwigle.budge.application.port.in.RecordTransactionUseCase;
+import com.hwigle.budge.application.port.out.DeleteTransactionPort;
 import com.hwigle.budge.application.port.out.LoadTransactionPort;
 import com.hwigle.budge.application.port.out.SaveTransactionPort;
 import com.hwigle.budge.domain.Transaction;
+import com.hwigle.budge.domain.TransactionType;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class TransactionService implements RecordTransactionUseCase, GetTransactionListUseCase {
+@RequiredArgsConstructor    // 필드에 final 붙은 놈들 모아서 생성자 자동 생성
+public class TransactionService implements
+        RecordTransactionUseCase,
+        GetTransactionListUseCase,
+        GetTransactionSummaryUseCase,
+        DeleteTransactionUseCase
+{
 
     // 데이터 불러올 포트
     private final SaveTransactionPort saveTransactionPort;
     private final LoadTransactionPort loadTransactionPort;
-
-
-    // 생성자로 주입받아 (나중에 스프링이 꽂아줄 거야)
-    public TransactionService(SaveTransactionPort saveTransactionPort, LoadTransactionPort loadTransactionPort) {
-        this.saveTransactionPort = saveTransactionPort;
-        this.loadTransactionPort = loadTransactionPort;
-    }
+    private final DeleteTransactionPort deleteTransactionPort;
 
     // 저장 로직
     @Override
@@ -38,5 +43,22 @@ public class TransactionService implements RecordTransactionUseCase, GetTransact
     public List<Transaction> getList() {
         System.out.println("서비스 : 저장소에서 전체 내역을 불러옵니다.");
         return loadTransactionPort.loadAll();
+    }
+
+    @Override
+    public long getTotalExpenditure() {
+        // 1. DB에서 모든 내역 가져오기
+        List<Transaction> transactions = loadTransactionPort.loadAll();
+
+        // 2. 지출만 골라서 금액 합치기
+        return transactions.stream()
+                .filter(t -> t.getType().equals(TransactionType.EXPENDITURE)) // 지출 필터
+                .mapToLong(t -> t.getMoney().getAmount())           // 금액으로 변환
+                .sum();                                                         // 합산
+    }
+
+    @Override
+    public void deleteTransaction(Long id) {
+        deleteTransactionPort.deleteById(id);
     }
 }

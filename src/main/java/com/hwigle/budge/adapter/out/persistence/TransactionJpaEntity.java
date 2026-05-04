@@ -24,8 +24,18 @@ public class TransactionJpaEntity {
     private Long amount; // Money 객체 대신 일단 숫자로 저장하자!
     private String category;
 
-    // [중요] 도메인(Business 로직용) 모델을 받아서 엔티티(DB 저장용)로 변환해주는 생성자
+    // [조회용] 도메인(Business 로직용) 모델을 받아서 엔티티(DB 저장용)로 변환해주는 생성자
+    public TransactionJpaEntity(Long id, TransactionType type, LocalDateTime timestamp, String description, Long amount, String category) {
+        this.id = id;
+        this.type = type;
+        this.timestamp = timestamp;
+        this.description = description;
+        this.amount = amount;
+        this.category = category;
+    }
+    // [저장용] 컨트롤러에서 처음 만들 때 사용 (ID를 몰라도 됨)
     public TransactionJpaEntity(TransactionType type, LocalDateTime timestamp, String description, Long amount, String category) {
+        this.id = null; // 저장용이니까 ID는 null
         this.type = type;
         this.timestamp = timestamp;
         this.description = description;

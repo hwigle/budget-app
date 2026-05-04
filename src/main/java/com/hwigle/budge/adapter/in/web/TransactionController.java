@@ -1,14 +1,14 @@
 package com.hwigle.budge.adapter.in.web;
 
+import com.hwigle.budge.application.port.in.DeleteTransactionUseCase;
 import com.hwigle.budge.application.port.in.GetTransactionListUseCase;
+import com.hwigle.budge.application.port.in.GetTransactionSummaryUseCase;
 import com.hwigle.budge.application.port.in.RecordTransactionUseCase;
 import com.hwigle.budge.domain.Money;
 import com.hwigle.budge.domain.Transaction;
 import com.hwigle.budge.domain.TransactionType;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,6 +20,8 @@ public class TransactionController {
     // '장부 기록하기' 인터페이스
     private final RecordTransactionUseCase recordTransactionUseCase;
     private final GetTransactionListUseCase getTransactionListUseCase;
+    private final GetTransactionSummaryUseCase getTransactionSummaryUseCase;
+    private final DeleteTransactionUseCase deleteTransactionUseCase;
 
     @GetMapping("/record")
     public String recordTransaction(
@@ -46,5 +48,17 @@ public class TransactionController {
     @GetMapping("/list")
     public List<Transaction> getAllTransaction() {
        return getTransactionListUseCase.getList() ;
+    }
+
+    @GetMapping("/total")
+    public String getTotal() {
+        long total = getTransactionSummaryUseCase.getTotalExpenditure();
+        return "현재까지 총 지출은 " + total + "원 입니다.";
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public String delete(@PathVariable Long id) {
+        deleteTransactionUseCase.deleteTransaction(id);
+        return id + "번 내역이 삭제되었습니다.";
     }
 }
