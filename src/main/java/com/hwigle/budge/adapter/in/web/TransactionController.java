@@ -1,9 +1,6 @@
 package com.hwigle.budge.adapter.in.web;
 
-import com.hwigle.budge.application.port.in.DeleteTransactionUseCase;
-import com.hwigle.budge.application.port.in.GetTransactionListUseCase;
-import com.hwigle.budge.application.port.in.GetTransactionSummaryUseCase;
-import com.hwigle.budge.application.port.in.RecordTransactionUseCase;
+import com.hwigle.budge.application.port.in.*;
 import com.hwigle.budge.domain.Money;
 import com.hwigle.budge.domain.Transaction;
 import com.hwigle.budge.domain.TransactionType;
@@ -22,6 +19,7 @@ public class TransactionController {
     private final GetTransactionListUseCase getTransactionListUseCase;
     private final GetTransactionSummaryUseCase getTransactionSummaryUseCase;
     private final DeleteTransactionUseCase deleteTransactionUseCase;
+    private final UpdateTransactionUseCase updateTransactionUseCase;
 
     @GetMapping("/record")
     public String recordTransaction(
@@ -55,18 +53,29 @@ public class TransactionController {
         return getTransactionListUseCase.getList();
     }
 
-
-
-
     @GetMapping("/total")
     public String getTotal() {
         long total = getTransactionSummaryUseCase.getTotalExpenditure();
         return "현재까지 총 지출은 " + total + "원 입니다.";
     }
 
+    // 삭제
     @DeleteMapping("/delete/{id}")
     public String delete(@PathVariable Long id) {
         deleteTransactionUseCase.deleteTransaction(id);
         return id + "번 내역이 삭제되었습니다.";
+    }
+
+    // 수정
+    @GetMapping("/update/{id}")
+    public String update(
+            @PathVariable Long id,
+            @RequestParam Long amount,
+            @RequestParam String desc,
+            @RequestParam String category
+    ) {
+        updateTransactionUseCase.updateTransaction(id, amount, desc, category);
+
+        return id + "번 내역이 성공적으로 수정되었습니다: " + desc + " (" + amount + "원)";
     }
 }

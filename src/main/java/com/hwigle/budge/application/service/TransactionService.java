@@ -1,17 +1,16 @@
 package com.hwigle.budge.application.service;
 
-import com.hwigle.budge.application.port.in.DeleteTransactionUseCase;
-import com.hwigle.budge.application.port.in.GetTransactionListUseCase;
-import com.hwigle.budge.application.port.in.GetTransactionSummaryUseCase;
-import com.hwigle.budge.application.port.in.RecordTransactionUseCase;
+import com.hwigle.budge.application.port.in.*;
 import com.hwigle.budge.application.port.out.DeleteTransactionPort;
 import com.hwigle.budge.application.port.out.LoadTransactionPort;
 import com.hwigle.budge.application.port.out.SaveTransactionPort;
+import com.hwigle.budge.application.port.out.UpdateTransactionPort;
 import com.hwigle.budge.domain.Money;
 import com.hwigle.budge.domain.Transaction;
 import com.hwigle.budge.domain.TransactionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,13 +20,16 @@ public class TransactionService implements
         RecordTransactionUseCase,
         GetTransactionListUseCase,
         GetTransactionSummaryUseCase,
-        DeleteTransactionUseCase
+        DeleteTransactionUseCase,
+        UpdateTransactionUseCase
 {
 
     // 데이터 불러올 포트
     private final SaveTransactionPort saveTransactionPort;
     private final LoadTransactionPort loadTransactionPort;
     private final DeleteTransactionPort deleteTransactionPort;
+    private final UpdateTransactionPort updateTransactionPort;
+
 
     // 저장 로직
     @Override
@@ -68,5 +70,19 @@ public class TransactionService implements
     @Override
     public void deleteTransaction(Long id) {
         deleteTransactionPort.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public void updateTransaction(Long id, Long amount, String description, String category) {
+        // 기존 내역 불러오기
+        Transaction transaction = loadTransactionPort.loadById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 내역을 찾을 수 없습니다."));
+
+        // 도메인 객체 업데이트
+        transaction.update(amount, description, category);
+
+        // 저장소에 반영
+        updateTransactionPort.update(transaction);
     }
 }
