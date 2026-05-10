@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor // 아래에 있는 recordTransactionUseCase를 자동으로 연결
@@ -20,6 +21,7 @@ public class TransactionController {
     private final GetTransactionSummaryUseCase getTransactionSummaryUseCase;
     private final DeleteTransactionUseCase deleteTransactionUseCase;
     private final UpdateTransactionUseCase updateTransactionUseCase;
+    private final GetCategorySummaryUseCase getCategorySummaryUseCase;
 
     @GetMapping("/record")
     public String recordTransaction(
@@ -77,5 +79,11 @@ public class TransactionController {
         updateTransactionUseCase.updateTransaction(id, amount, desc, category);
 
         return id + "번 내역이 성공적으로 수정되었습니다: " + desc + " (" + amount + "원)";
+    }
+
+    // 통계
+    @GetMapping("/summary")
+    public Map<String, Long> getSummary() {
+        return getCategorySummaryUseCase.getCategorySummary();
     }
 }

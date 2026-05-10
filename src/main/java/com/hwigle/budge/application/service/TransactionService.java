@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor    // 필드에 final 붙은 놈들 모아서 생성자 자동 생성
@@ -21,7 +23,8 @@ public class TransactionService implements
         GetTransactionListUseCase,
         GetTransactionSummaryUseCase,
         DeleteTransactionUseCase,
-        UpdateTransactionUseCase
+        UpdateTransactionUseCase,
+        GetCategorySummaryUseCase
 {
 
     // 데이터 불러올 포트
@@ -84,5 +87,20 @@ public class TransactionService implements
 
         // 저장소에 반영
         updateTransactionPort.update(transaction);
+    }
+
+    @Override
+    public Map<String, Long> getCategorySummary() {
+        // 모든 내역 불러오기
+        List<Transaction> allTransactions = loadTransactionPort.loadAll();
+
+        return allTransactions.stream()
+                // 지출(EXPENDITURE) 타입만 필터링
+                .filter(t -> t.getType() == TransactionType.EXPENDITURE)
+                // 카테코리를 키(Key)로, 금액을 값(Value)로 그룹화해서 환산
+                .collect(Collectors.groupingBy(
+                        Transaction::getCategory,
+                        Collectors.summingLong(t -> t.getMoney().getAmount())
+                ));
     }
 }
