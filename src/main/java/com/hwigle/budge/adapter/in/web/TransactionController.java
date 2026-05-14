@@ -13,6 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor // 아래에 있는 recordTransactionUseCase를 자동으로 연결
+@CrossOrigin(origins = "http://localhost:3000")
 public class TransactionController {
 
     // '장부 기록하기' 인터페이스
@@ -23,27 +24,21 @@ public class TransactionController {
     private final UpdateTransactionUseCase updateTransactionUseCase;
     private final GetCategorySummaryUseCase getCategorySummaryUseCase;
 
-    @GetMapping("/record")
-    public String recordTransaction(
-            @RequestParam String desc,
-            @RequestParam Long amount,
-            @RequestParam String category,
-            @RequestParam TransactionType type
-    ) {
-        // 1. 도메인 객체
+    @PostMapping("/record")
+    public String recordTransaction(@RequestBody TransactionRequest request) {
         Transaction transaction = new Transaction(
-                type,
-                LocalDateTime.now(),         // "지금 바로 쓴 거야!" (현재 시간)
-                desc,                        // "어디에 썼냐면..." (설명)
-                new Money(amount),           // "얼마냐면..." (돈 객체로 변신!)
-                category                     // "분류는..." (카테고리)
+                request.getType(),
+                java.time.LocalDateTime.now(),
+                request.getDescription(),
+                new com.hwigle.budge.domain.Money(request.getAmount()), // 숫자를 Money로 감싸기
+                request.getCategory()
         );
 
         // 2. 서비스 호출
         recordTransactionUseCase.record(transaction);
 
         // 3. 응답
-        return "가계부 기록 성공! 내역 : " + desc + ", 금액 : " + amount + "원";
+        return "성공";
     }
 
     @GetMapping("/list")
@@ -85,5 +80,15 @@ public class TransactionController {
     @GetMapping("/summary")
     public Map<String, Long> getSummary() {
         return getCategorySummaryUseCase.getCategorySummary();
+    }
+
+    @lombok.Getter
+    @lombok.Setter
+    @lombok.NoArgsConstructor
+    static class TransactionRequest {
+        private com.hwigle.budge.domain.TransactionType type;
+        private String description;
+        private Long amount;
+        private String category;
     }
 }
